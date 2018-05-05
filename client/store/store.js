@@ -6,4 +6,4 @@ export default {
   AppState,
 }
 
-export const creatStoreMap = () => ({AppState: new AppState()})
+export const createStoreMap = () => ({appState: new AppState()})

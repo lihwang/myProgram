@@ -3,9 +3,9 @@ const path = require('path')
 const webpack = require('webpack')
 const MemoryFs = require('memory-fs')
 const proxy = require('http-proxy-middleware')
+const asyncBootstrap =require('react-async-bootstrapper');
 const ReactDomServer = require('react-dom/server')
 const serverConfig = require('../../build/webpack.server')
-
 const getTemplate = () => {
   return new Promise((resolve, reject) => {
     axios
@@ -49,14 +49,28 @@ serverCompiler.watch({}, (err, stats) => {
   m._compile(bundle, 'server-entry.js') // 必须指定名字(将文件编译成制定文件暴露出去)
   serverBundle = m.exports.default;
   createStoreMap = m.exports.createStoreMap;
+  console.log(createStoreMap)
 })
 
 module.exports = function (app) {
   app.use('/public', proxy({target: 'http://localhost:9988'}))
   app.get('*', function (req, res) {
     getTemplate().then((template) => {
-      const content = ReactDomServer.renderToString(serverBundle) // 利用ReactDomServer转化字符串服务器端渲染
-      res.send(template.replace('<!-- app -->', content))
+      const routerContext={};
+      const store=createStoreMap();
+      const app= serverBundle(store,routerContext,req.url);
+      // 服务端异步获取数据方法
+      asyncBootstrap(app).then(()=>{
+        if(routerContext.url){
+          res.status(302).setHeader("Location",routerContext.url);
+          res.end();
+          return false;
+        }
+        console.log(store.appState.count)
+        const content = ReactDomServer.renderToString(app) // 利用ReactDomServer转化字符串服务器端渲染
+        res.send(template.replace('<!-- app -->', content))
+      })
+
     })
   })
 }

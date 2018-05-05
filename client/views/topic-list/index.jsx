@@ -14,6 +14,15 @@ export default class TopicList extends React.Component {
     // 你好
   }
 
+  asyncBootstrap() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.props.appState.count = 3;
+        resolve(true);
+      })
+    })
+  }
+
   changeName(e) {
     this.props.appState.changeName(e.target.value);
   }

@@ -39,9 +39,9 @@ export default class TestApi extends React.Component {
   render() {
     return (
       <div>
-        <button onClick={this.getTopics}>topics</button>
-        <button onClick={this.login}>topics</button>
-        <button onClick={this.markAll}>topics</button>
+        <button onClick={this.getTopics}>getTopics</button>
+        <button onClick={this.login}>login</button>
+        <button onClick={this.markAll}>markAll</button>
       </div>
     )
   }
